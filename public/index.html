@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 
 <script>
 /* ============================================================
@@ -38,8 +39,10 @@ const CONFIG = {
   dietary: "Gluten free and dairy free. The whole meal doesn\u2019t have to be \u2014 just make sure a few things on the plate are free of gluten and dairy so Kaylee can eat too.",
   dropOff: "Anytime between 5:30 and 6:30 PM. Porch drop-off is perfect \u2014 no need to knock or stay.",
   address: "7776 HWY 14, Fort Collins, CO",
-  contactName: "Seth",
-  contactPhone: "970-381-9313",
+  contacts: [
+    { name: "Seth", phone: "970-381-9313" },
+    { name: "Kaylee", phone: "970-800-1660" }
+  ],
   extraNote: "Please label anything that is gluten free or dairy free. Disposable dishes are a real kindness \u2014 nobody has to remember to return them.",
 
   // --- Saving sign-ups ---
@@ -50,321 +53,6 @@ const CONFIG = {
 };
 </script>
 
-<style>
-:root{
-  --oat:#EDE6D8;
-  --card:#FFFCF6;
-  --ink:#241F19;
-  --ink-soft:#635948;
-  --green:#3E6B4E;
-  --green-deep:#2C4E39;
-  --gold:#B5852F;
-  --line:#D8CDB8;
-  --line-soft:#E6DDCB;
-}
-
-*{box-sizing:border-box}
-
-html{-webkit-text-size-adjust:100%}
-
-body{
-  margin:0;
-  background:var(--oat);
-  color:var(--ink);
-  font-family:"Karla","Helvetica Neue",Arial,sans-serif;
-  font-size:17px;
-  line-height:1.55;
-  -webkit-font-smoothing:antialiased;
-}
-
-.wrap{max-width:660px;margin:0 auto;padding:0 20px 72px}
-
-/* ---------- announcement ---------- */
-
-.masthead{padding:56px 0 0}
-
-.eyebrow{
-  font-size:12px;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  font-weight:700;
-  color:var(--gold);
-  margin:0 0 22px;
-}
-
-.headline{
-  font-family:"Newsreader",Georgia,serif;
-  font-weight:400;
-  font-size:clamp(40px,11vw,60px);
-  line-height:1.02;
-  letter-spacing:-.015em;
-  margin:0 0 20px;
-}
-
-.announcement{
-  font-family:"Newsreader",Georgia,serif;
-  font-style:italic;
-  font-weight:300;
-  font-size:clamp(19px,4.6vw,22px);
-  line-height:1.5;
-  color:var(--ink);
-  margin:0;
-  max-width:34em;
-}
-
-/* ---------- ledger bar ---------- */
-
-.ledger{
-  display:flex;
-  align-items:baseline;
-  gap:10px;
-  flex-wrap:wrap;
-  margin:40px 0 0;
-  padding:14px 0;
-  border-top:1px solid var(--ink);
-  border-bottom:1px solid var(--line);
-  font-size:14px;
-  letter-spacing:.02em;
-}
-.ledger strong{font-weight:700}
-.ledger .dot{color:var(--line);}
-.ledger .done{color:var(--green)}
-
-/* ---------- details ---------- */
-
-.details{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:3px;
-  padding:26px 24px 8px;
-  margin:28px 0 44px;
-}
-
-.details h2{
-  font-family:"Newsreader",Georgia,serif;
-  font-weight:400;
-  font-size:23px;
-  margin:0 0 18px;
-}
-
-.detail-row{
-  display:grid;
-  grid-template-columns:104px 1fr;
-  gap:16px;
-  padding:0 0 18px;
-}
-.detail-row dt{
-  font-size:11px;
-  letter-spacing:.13em;
-  text-transform:uppercase;
-  font-weight:700;
-  color:var(--ink-soft);
-  padding-top:5px;
-}
-.detail-row dd{margin:0;font-size:16px;line-height:1.5}
-.detail-row a{color:var(--green-deep)}
-
-@media (max-width:520px){
-  .detail-row{grid-template-columns:1fr;gap:3px;padding-bottom:20px}
-  .detail-row dt{padding-top:0}
-}
-
-.details-note{
-  border-top:1px dashed var(--line);
-  margin:0 -24px;
-  padding:16px 24px 18px;
-  font-size:15px;
-  color:var(--ink-soft);
-  line-height:1.5;
-}
-
-/* ---------- section label ---------- */
-
-.section-label{
-  font-family:"Newsreader",Georgia,serif;
-  font-weight:400;
-  font-size:26px;
-  margin:0 0 6px;
-}
-.section-sub{margin:0 0 22px;color:var(--ink-soft);font-size:15px}
-
-/* ---------- slot cards ---------- */
-
-.slots{list-style:none;margin:0;padding:0}
-
-.slot{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:3px;
-  padding:20px 22px;
-  margin-bottom:12px;
-}
-.slot.is-taken{
-  background:#F7F4EA;
-  border-color:var(--line-soft);
-}
-
-.slot-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-
-.slot-day{
-  font-size:12px;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  font-weight:700;
-  color:var(--ink-soft);
-}
-.slot-date{
-  font-family:"Newsreader",Georgia,serif;
-  font-weight:400;
-  font-size:27px;
-  line-height:1.1;
-}
-.slot.is-taken .slot-date{color:var(--ink-soft)}
-
-/* the signature line — the heart of the thing */
-
-.sigline{
-  margin-top:14px;
-  display:flex;
-  align-items:flex-end;
-  gap:14px;
-  flex-wrap:wrap;
-}
-
-.sig-rule{
-  flex:1 1 150px;
-  min-width:120px;
-  border-bottom:1px dotted var(--line);
-  height:26px;
-}
-
-.signed{
-  animation:write .45s ease-out both;
-}
-@keyframes write{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-
-.sig-name{
-  font-family:"Newsreader",Georgia,serif;
-  font-style:italic;
-  font-weight:400;
-  font-size:26px;
-  line-height:1.15;
-  color:var(--green-deep);
-  border-bottom:1px solid var(--green);
-  padding:0 2px 3px;
-  display:inline-block;
-}
-
-.sig-meal{margin:12px 0 0;font-size:16px;line-height:1.5}
-.sig-meal b{font-weight:700}
-.sig-note{margin:6px 0 0;font-size:15px;color:var(--ink-soft);font-style:italic}
-
-/* ---------- buttons ---------- */
-
-button{font-family:inherit;font-size:inherit;cursor:pointer}
-
-.btn{
-  background:var(--green);
-  color:#fff;
-  border:1px solid var(--green);
-  border-radius:2px;
-  padding:11px 22px;
-  font-size:15px;
-  font-weight:700;
-  letter-spacing:.02em;
-  transition:background .15s ease;
-}
-.btn:hover{background:var(--green-deep);border-color:var(--green-deep)}
-
-.btn-quiet{
-  background:none;
-  border:none;
-  padding:6px 0;
-  color:var(--ink-soft);
-  font-size:14px;
-  text-decoration:underline;
-  text-underline-offset:3px;
-}
-.btn-quiet:hover{color:var(--ink)}
-
-.btn-ghost{
-  background:none;
-  border:1px solid var(--line);
-  border-radius:2px;
-  padding:10px 18px;
-  font-size:14px;
-  color:var(--ink);
-}
-.btn-ghost:hover{border-color:var(--ink-soft)}
-
-:focus-visible{outline:2px solid var(--green);outline-offset:2px}
-
-/* ---------- form ---------- */
-
-.form{margin:18px 0 0;padding:20px 0 0;border-top:1px dashed var(--line)}
-.field{margin:0 0 15px}
-.field label{
-  display:block;
-  font-size:11px;
-  letter-spacing:.13em;
-  text-transform:uppercase;
-  font-weight:700;
-  color:var(--ink-soft);
-  margin:0 0 6px;
-}
-.field input,.field textarea{
-  width:100%;
-  font-family:inherit;
-  font-size:16px;
-  color:var(--ink);
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:2px;
-  padding:11px 12px;
-}
-.field textarea{resize:vertical;min-height:64px}
-.field input:focus,.field textarea:focus{border-color:var(--green);outline:none;box-shadow:0 0 0 2px rgba(62,107,78,.15)}
-.form-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:4px}
-.form-error{color:#9A3B2E;font-size:14px;margin:0 0 14px;display:none}
-.form-error.is-on{display:block}
-
-/* ---------- status / footer ---------- */
-
-.status{
-  margin:0 0 28px;
-  padding:14px 16px;
-  border-left:3px solid var(--gold);
-  background:#F6EFDE;
-  font-size:15px;
-  line-height:1.5;
-  display:none;
-}
-.status.is-on{display:block}
-
-.footer{margin-top:40px;padding-top:22px;border-top:1px solid var(--line);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.footer p{margin:0;font-size:14px;color:var(--ink-soft)}
-
-.loading{padding:40px 0;color:var(--ink-soft);font-size:15px}
-
-.all-full{
-  background:var(--green);
-  color:#fff;
-  padding:22px 24px;
-  border-radius:3px;
-  margin-bottom:24px;
-}
-.all-full p{margin:0;font-family:"Newsreader",Georgia,serif;font-style:italic;font-size:20px}
-
-@media (prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
-}
-
-@media print{
-  body{background:#fff}
-  .btn,.btn-quiet,.btn-ghost,.form,.status{display:none!important}
-  .slot{break-inside:avoid;border-color:#bbb}
-}
-</style>
 </head>
 
 <body>
@@ -506,12 +194,13 @@ function fillStaticCopy(){
   document.getElementById("d-dropoff").textContent = CONFIG.dropOff;
   document.getElementById("d-address").textContent = CONFIG.address;
   document.getElementById("d-extra").textContent = CONFIG.extraNote;
-  document.getElementById("d-contact").innerHTML =
-    esc(CONFIG.contactName) + " &middot; <a href=\"tel:" +
-    esc(CONFIG.contactPhone.replace(/[^0-9+]/g, "")) + "\">" +
-    esc(CONFIG.contactPhone) + "</a>";
+  document.getElementById("d-contact").innerHTML = CONFIG.contacts.map(c =>
+    esc(c.name) + " &middot; <a href=\"tel:" + esc(c.phone.replace(/[^0-9+]/g, "")) + "\">" +
+    esc(c.phone) + "</a>"
+  ).join(" or ");
+  const names = CONFIG.contacts.map(c => c.name).join(" or ");
   document.getElementById("footNote").textContent =
-    "Signed up and something came up? Call " + CONFIG.contactName + " so the night doesn\u2019t go uncovered.";
+    "Signed up and something came up? Call " + names + " so the night doesn\u2019t go uncovered.";
 }
 
 function renderLedger(){
@@ -575,6 +264,7 @@ function showForm(iso){
     "<div class=\"field\"><label for=\"f-name\">Your name</label>" +
       "<input id=\"f-name\" type=\"text\" autocomplete=\"name\"></div>" +
     "<div class=\"field\"><label for=\"f-contact\">Phone or email</label>" +
+      "<p class=\"field-hint\">Only Seth and Kaylee can see this — it’s so they can reach you if plans change.</p>" +
       "<input id=\"f-contact\" type=\"text\" autocomplete=\"tel\"></div>" +
     "<div class=\"field\"><label for=\"f-meal\">What you&rsquo;re bringing</label>" +
       "<input id=\"f-meal\" type=\"text\" placeholder=\"Roast chicken, rice, green beans, fruit\"></div>" +

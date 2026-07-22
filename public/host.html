@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Meals for Kaylee &amp; Seth — Host view</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,500;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.pin-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:26px 24px;
+  margin:40px 0;
+  max-width:320px;
+}
+.pin-card input{
+  width:100%;
+  font-family:inherit;
+  font-size:20px;
+  letter-spacing:.1em;
+  text-align:center;
+  color:var(--ink);
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:2px;
+  padding:11px 12px;
+  margin:0 0 14px;
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Host view — not public</p>
+    <h1 class="headline">Who to call.</h1>
+    <p class="announcement">Names, meals, and contact info for every night that's been claimed.</p>
+  </header>
+
+  <div class="status" id="status"></div>
+
+  <div class="pin-card" id="pinCard">
+    <div class="field">
+      <label for="pin">Enter the PIN</label>
+      <input id="pin" type="text" inputmode="numeric" autocomplete="off" maxlength="8">
+    </div>
+    <button class="btn" id="pinBtn" type="button">View the list</button>
+  </div>
+
+  <div id="board" style="display:none"></div>
+
+</div>
+
+<script>
+const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function parseDate(iso){
+  const p = iso.split("-").map(Number);
+  return new Date(p[0], p[1] - 1, p[2]);
+}
+function dayName(iso){ return DAYS[parseDate(iso).getDay()]; }
+function prettyDate(iso){
+  const d = parseDate(iso);
+  return MONTHS[d.getMonth()] + " " + d.getDate();
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => (
+    {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]
+  ));
+}
+function contactLink(contact){
+  const c = esc(contact);
+  if (contact.includes("@")) return "<a href=\"mailto:" + c + "\">" + c + "</a>";
+  const digits = contact.replace(/[^0-9+]/g, "");
+  if (digits.length >= 7) return "<a href=\"tel:" + esc(digits) + "\">" + c + "</a>";
+  return c;
+}
+
+function say(msg){
+  const el = document.getElementById("status");
+  el.textContent = msg;
+  el.classList.add("is-on");
+}
+
+function renderBoard(signups){
+  const dates = Object.keys(signups).sort();
+  const board = document.getElementById("board");
+  if (!dates.length) {
+    board.innerHTML = "<p class=\"loading\">No sign-ups yet.</p>";
+    return;
+  }
+  let html = "<ul class=\"slots\">";
+  dates.forEach(iso => {
+    const s = signups[iso];
+    html += "<li class=\"slot is-taken\">";
+    html += "<div class=\"slot-head\"><span class=\"slot-day\">" + dayName(iso) +
+            "</span><span class=\"slot-date\">" + prettyDate(iso) + "</span></div>";
+    html += "<div class=\"sigline signed\"><span class=\"sig-name\">" + esc(s.name) + "</span></div>";
+    html += "<p class=\"sig-contact\">" + contactLink(s.contact) + "</p>";
+    html += "<p class=\"sig-meal\"><b>Bringing:</b> " + esc(s.meal) + "</p>";
+    if (s.note) html += "<p class=\"sig-note\">" + esc(s.note) + "</p>";
+    html += "</li>";
+  });
+  html += "</ul>";
+  board.innerHTML = html;
+}
+
+async function submitPin(){
+  const pin = document.getElementById("pin").value.trim();
+  const btn = document.getElementById("pinBtn");
+  btn.disabled = true;
+  btn.textContent = "Checking…";
+  try {
+    const res = await fetch("/api/host/signups", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin })
+    });
+    if (res.status === 401) {
+      say("That PIN isn't right. Try again.");
+      btn.disabled = false;
+      btn.textContent = "View the list";
+      return;
+    }
+    if (!res.ok) throw new Error("Could not load the list.");
+    const signups = await res.json();
+    document.getElementById("pinCard").style.display = "none";
+    document.getElementById("board").style.display = "block";
+    renderBoard(signups);
+  } catch (e) {
+    say(e.message);
+    btn.disabled = false;
+    btn.textContent = "View the list";
+  }
+}
+
+document.getElementById("pinBtn").addEventListener("click", submitPin);
+document.getElementById("pin").addEventListener("keydown", e => {
+  if (e.key === "Enter") submitPin();
+});
+</script>
+</body>
+</html>

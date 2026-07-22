@@ -19,6 +19,7 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATABASE_URL = process.env.DATABASE_URL;
+const HOST_PIN = process.env.HOST_PIN || "7776";
 
 /* ---------- storage ---------- */
 
@@ -62,6 +63,16 @@ async function readAll() {
   return out;
 }
 
+/** Strips contact info — used for anything visible to the public. */
+function stripContact(entry) {
+  return { name: entry.name, meal: entry.meal, note: entry.note };
+}
+function withoutContact(all) {
+  const out = {};
+  for (const [date, entry] of Object.entries(all)) out[date] = stripContact(entry);
+  return out;
+}
+
 /** Returns the existing entry if the night was already taken, otherwise null. */
 async function claim(date, entry) {
   if (!db) {
@@ -95,12 +106,31 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/api/signups", async (req, res) => {
   try {
     res.set("Cache-Control", "no-store");
+    res.json(withoutContact(await readAll()));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not read the sign-ups." });
+  }
+});
+
+/* Host-only view: same data, but with contact info included. Gated by
+   a shared PIN rather than a real login, since this is just a family
+   meal train and not worth building accounts for. */
+app.post("/api/host/signups", async (req, res) => {
+  const pin = String((req.body || {}).pin || "");
+  if (pin !== HOST_PIN) {
+    return res.status(401).json({ error: "Wrong PIN." });
+  }
+  try {
+    res.set("Cache-Control", "no-store");
     res.json(await readAll());
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Could not read the sign-ups." });
   }
 });
+
+app.get("/host", (req, res) => res.sendFile(path.join(__dirname, "public", "host.html")));
 
 app.post("/api/signups/:date", async (req, res) => {
   const date = req.params.date;
@@ -121,7 +151,7 @@ app.post("/api/signups/:date", async (req, res) => {
 
   try {
     const taken = await claim(date, entry);
-    if (taken) return res.status(409).json({ error: "taken", entry: taken });
+    if (taken) return res.status(409).json({ error: "taken", entry: stripContact(taken) });
     res.json({ ok: true });
   } catch (err) {
     console.error(err);
