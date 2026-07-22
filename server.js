@@ -2,14 +2,15 @@
  * Meal sign-up server.
  *
  * Serves the page out of public/ and keeps the sign-ups in Postgres.
- * Runs on Render's free web service tier.
+ * Runs on Fly.io.
  *
  * Environment variables:
- *   DATABASE_URL  connection string from Render Postgres.
+ *   DATABASE_URL  connection string from Fly Postgres, set as a secret.
  *                 If it is missing the server keeps sign-ups in memory
  *                 instead, which is fine for poking at it locally but
- *                 loses everything on restart.
- *   PORT          set automatically by Render.
+ *                 loses everything on restart (a real risk on Fly, since
+ *                 the machine can stop and restart between visits).
+ *   PORT          set in fly.toml / the Dockerfile.
  */
 
 const express = require("express");
@@ -30,9 +31,13 @@ async function initDb() {
     return;
   }
   const { Pool } = require("pg");
+  // Fly's internal Postgres runs on a private network with no SSL
+  // (its connection string says so via sslmode=disable). Anything else
+  // gets the relaxed-but-encrypted default.
+  const noSsl = DATABASE_URL.includes("localhost") || DATABASE_URL.includes("sslmode=disable");
   db = new Pool({
     connectionString: DATABASE_URL,
-    ssl: DATABASE_URL.includes("localhost") ? false : { rejectUnauthorized: false }
+    ssl: noSsl ? false : { rejectUnauthorized: false }
   });
   await db.query(`
     CREATE TABLE IF NOT EXISTS signups (
@@ -134,7 +139,7 @@ app.delete("/api/signups/:date", async (req, res) => {
   }
 });
 
-/* Render pings this to confirm the service is awake. */
+/* Fly pings this to confirm the machine is healthy and awake. */
 app.get("/healthz", (req, res) => res.send("ok"));
 
 initDb()
